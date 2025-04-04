@@ -3,18 +3,6 @@ require_once('config.php'); // Contains DB credentials
 
 header("Content-Type: application/json");
 
-// Database connection
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-
-if ($conn->connect_error) {
-    http_response_code(500);
-    echo json_encode(["status" => 500, "message" => "Database connection error"]);
-    exit;
-}
-
-
-
-
 
 // Prepare SQL query
 $query = $conn->prepare('SELECT * FROM data');
