@@ -6,7 +6,8 @@ header("Content-Type: application/json");
 
 
 // Check if 'rid' is provided in the URL
-if (!isset($_GET['rid'])) {
+if (!isset($_GET['rid'])) 
+{
     http_response_code(400);
     echo json_encode(["status" => 400, "message" => "Recipe ID is required"]);
     exit;
@@ -20,7 +21,8 @@ $recipeId = $_GET['rid'];
 $query = $conn->prepare('SELECT * FROM data WHERE unique_id = ?');
 $query->bind_param('s', $recipeId);
 
-if ($query->execute()) {
+if ($query->execute())
+{
     $result = $query->get_result();
 
     if ($result->num_rows === 0) {
@@ -32,7 +34,8 @@ if ($query->execute()) {
     $recipe = $result->fetch_assoc();
     http_response_code(200);
     echo json_encode(["status" => 200, "data" => $recipe]);
-} else {
+} else 
+{
     http_response_code(500);
     echo json_encode(["status" => 500, "message" => "Query execution failed"]);
 }
