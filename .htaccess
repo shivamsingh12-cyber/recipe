@@ -1,0 +1,10 @@
+RewriteEngine On
+RewriteBase /recipe/
+
+# Rule to map /recipe/readrecipe/1 to readrecipe.php?rid=1
+RewriteRule ^readrecipe/([0-9]+)/?$ readrecipe.php?rid=$1 [L,QSA]
+
+# Optional: Remove .php extension for other files if needed
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.*)$ $1.php [L]

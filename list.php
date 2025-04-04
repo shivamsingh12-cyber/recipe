@@ -1,34 +1,40 @@
 <?php
-require_once('config.php');
+require_once('config.php'); // Contains DB credentials
+
 header("Content-Type: application/json");
-class ListAll extends DbCredentials{
-    public function getRecipes(){
-  
-        $conn=new mysqli($this->hostName(),$this->userName(),$this->password(),$this->dbName());
-        if ($conn->connect_error) {
-            // http_response_code(500);
-            echo json_encode(["status" => 500, "message" => "Database connection error"]);
-            return;
-        }
 
-        $query = $conn->prepare('SELECT unique_id, name, prep_time, difficulty, vegetarian FROM data');
-        $query->execute();
-        $result = $query->get_result();
+// Database connection
+$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
-        $recipes = [];
-        while ($row = $result->fetch_assoc()) {
-            $recipes[] = $row;
-        }
-
-        echo json_encode([
-            "status" => 200,
-            "data" => $recipes
-        ]);
-    }
+if ($conn->connect_error) {
+    http_response_code(500);
+    echo json_encode(["status" => 500, "message" => "Database connection error"]);
+    exit;
 }
 
-$api = new ListAll();
-$api->getRecipes();
 
 
+
+
+// Prepare SQL query
+$query = $conn->prepare('SELECT * FROM data');
+
+if ($query->execute()) {
+    $result = $query->get_result();
+
+    if ($result->num_rows === 0) {
+        http_response_code(404);
+        echo json_encode(["status" => 404, "message" => "Recipe not found"]);
+        exit;
+    }
+
+    $recipe = $result->fetch_assoc();
+    http_response_code(200);
+    echo json_encode(["status" => 200, "data" => $recipe]);
+} else {
+    http_response_code(500);
+    echo json_encode(["status" => 500, "message" => "Query execution failed"]);
+}
+
+$conn->close();
 ?>

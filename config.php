@@ -1,19 +1,6 @@
 <?php
-class DbCredentials{
-    protected function hostName(){
-        return "localhost";
-    }
-    protected function userName(){
-        // return "u899926382_reliefa1";
-        return "root";
-    }
-    protected function password(){
-        // return "Reliefa@123";
-        return "";
-    }
-    protected function dbName(){
-        // return "u899926382_reliefa1";
-        return "recipe";
-    }
-}
+define("DB_HOST", "localhost");
+define("DB_USER", "root");
+define("DB_PASS", "");
+define("DB_NAME", "recipe");
 ?>
