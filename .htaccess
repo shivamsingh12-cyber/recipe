@@ -4,6 +4,16 @@ RewriteBase /recipe/
 # Rule to map /recipe/readrecipe/1 to readrecipe.php?rid=1
 RewriteRule ^readrecipe/([0-9]+)/?$ readrecipe.php?rid=$1 [L,QSA]
 
+
+RewriteRule ^update/([0-9]+)/?$ update.php?rid=$1 [L,QSA]
+
+# ✅ Add other specific rewrites (optional for custom params)
+# Example: /delete/1 -> delete.php?rid=1
+RewriteRule ^delete/([0-9]+)/?$ delete.php?rid=$1 [L,QSA]
+
+php_flag display_errors On
+php_value error_reporting 32767
+
 # Optional: Remove .php extension for other files if needed
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}\.php -f
