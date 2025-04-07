@@ -1,44 +1,17 @@
 <?php
-require_once('config.php'); // Contains DB credentials
+require_once('config.php');
+require_once('RecipeService.php');
 
 header("Content-Type: application/json");
 
-
-
-// Check if 'rid' is provided in the URL
-if (!isset($_GET['rid'])) 
-{
+if (!isset($_GET['rid'])) {
     http_response_code(400);
     echo json_encode(["status" => 400, "message" => "Recipe ID is required"]);
     exit;
 }
 
-$recipeId = $_GET['rid'];
-
-
-
-// Prepare SQL query
-$query = $conn->prepare('SELECT * FROM data WHERE unique_id = ?');
-$query->bind_param('s', $recipeId);
-
-if ($query->execute())
-{
-    $result = $query->get_result();
-
-    if ($result->num_rows === 0) {
-        http_response_code(404);
-        echo json_encode(["status" => 404, "message" => "Recipe not found"]);
-        exit;
-    }
-
-    $recipe = $result->fetch_assoc();
-    http_response_code(200);
-    echo json_encode(["status" => 200, "data" => $recipe]);
-} else 
-{
-    http_response_code(500);
-    echo json_encode(["status" => 500, "message" => "Query execution failed"]);
-}
-
+$recipeService = new RecipeService($conn);
+$response = $recipeService->getRecipeById($_GET['rid']);
+http_response_code($response['status']);
+echo json_encode($response);
 $conn->close();
-?>
