@@ -140,6 +140,53 @@ class RecipeService
         ];
     }
 
+    public function deleteRecipe(array $input): array
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'DELETE') {
+            http_response_code(405);
+            return [
+                'status' => 405,
+                'message' => 'Only DELETE method allowed'
+            ];
+        }
+    
+        if (!isset($input['unique_id'])) {
+            http_response_code(400);
+            return [
+                'status' => 400,
+                'message' => 'unique_id is required'
+            ];
+        }
+    
+        $uniqueId = $input['unique_id'];
+        $stmt = $this->db->prepare('DELETE FROM data WHERE unique_id=?');
+    
+        if (!$stmt) {
+            http_response_code(500);
+            return [
+                'status' => 500,
+                'message' => 'Failed to prepare statement'
+            ];
+        }
+    
+        $stmt->bind_param('i', $uniqueId);
+    
+        if ($stmt->execute()) {
+            http_response_code(200);
+            return [
+                'status' => 200,
+                'message' => 'Recipe deleted successfully'
+            ];
+        }
+    
+        http_response_code(500);
+        return [
+            'status' => 500,
+            'message' => 'Query execution failed'
+        ];
+    }
+    
+
 
 
 

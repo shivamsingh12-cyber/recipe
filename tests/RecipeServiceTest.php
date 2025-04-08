@@ -253,4 +253,77 @@ public function testUpdateRecipeExecutionFails()
     $this->assertEquals('Query execution failed', $response['message']);
 }
 
+public function testDeleteRecipeSuccess(): void
+{
+    $mockStmt = $this->createMock(mysqli_stmt::class);
+    $mockStmt->expects($this->once())->method('bind_param');
+    $mockStmt->expects($this->once())->method('execute')->willReturn(true);
+
+    $mockConn = $this->createMock(mysqli::class);
+    $mockConn->expects($this->once())->method('prepare')->with(
+        'DELETE FROM data WHERE unique_id=?'
+    )->willReturn($mockStmt);
+
+    $_SERVER['REQUEST_METHOD'] = 'DELETE';
+    $service = new RecipeService($mockConn);
+    $response = $service->deleteRecipe(['unique_id' => 'abc123']);
+
+    $this->assertEquals(200, $response['status']);
+    $this->assertEquals('Recipe deleted successfully', $response['message']);
+}
+
+public function testDeleteRecipeFailsWithoutUniqueId(): void
+{
+    $mockConn = $this->createMock(mysqli::class);
+    $_SERVER['REQUEST_METHOD'] = 'DELETE';
+
+    $service = new RecipeService($mockConn);
+    $response = $service->deleteRecipe([]); // No unique_id
+
+    $this->assertEquals(400, $response['status']);
+    $this->assertEquals('unique_id is required', $response['message']);
+}
+
+public function testDeleteRecipeFailsOnWrongMethod(): void
+{
+    $mockConn = $this->createMock(mysqli::class);
+    $_SERVER['REQUEST_METHOD'] = 'GET';
+
+    $service = new RecipeService($mockConn);
+    $response = $service->deleteRecipe(['unique_id' => 'abc123']);
+
+    $this->assertEquals(405, $response['status']);
+    $this->assertEquals('Only DELETE method allowed', $response['message']);
+}
+
+public function testDeleteRecipeFailsOnQueryExecution(): void
+{
+    $mockStmt = $this->createMock(mysqli_stmt::class);
+    $mockStmt->expects($this->once())->method('bind_param');
+    $mockStmt->expects($this->once())->method('execute')->willReturn(false);
+
+    $mockConn = $this->createMock(mysqli::class);
+    $mockConn->expects($this->once())->method('prepare')->willReturn($mockStmt);
+
+    $_SERVER['REQUEST_METHOD'] = 'DELETE';
+    $service = new RecipeService($mockConn);
+    $response = $service->deleteRecipe(['unique_id' => 'abc123']);
+
+    $this->assertEquals(500, $response['status']);
+    $this->assertEquals('Query execution failed', $response['message']);
+}
+
+public function testDeleteRecipeFailsOnStatementPrepare(): void
+{
+    $mockConn = $this->createMock(mysqli::class);
+    $mockConn->expects($this->once())->method('prepare')->willReturn(false);
+
+    $_SERVER['REQUEST_METHOD'] = 'DELETE';
+    $service = new RecipeService($mockConn);
+    $response = $service->deleteRecipe(['unique_id' => 'abc123']);
+
+    $this->assertEquals(500, $response['status']);
+    $this->assertEquals('Failed to prepare statement', $response['message']);
+}
+
 }
